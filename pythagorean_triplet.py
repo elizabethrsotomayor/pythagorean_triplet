@@ -1,32 +1,43 @@
 from typing import List
-import math
 
 
-def triplets_with_sum(number: int) -> list[list[int]]:
-    """Return a list of Pythagorean triplets for which a + b + c = N"""
-    trip = []
+def triplets_with_sum(number: int) -> List[int]:
+    """Return a list of Pythagorean triplets for a given natural number."""
+    trips = []
 
-    # for n in range(1, number + 1):
-    #     print(n)
-    #     if n ** 2 + (n + 1) ** 2 == (n + 2) ** 2:
-    #         nums = []
-    #         a = n ** 2
-    #         b = (n + 1) ** 2
-    #         c = (n + 2) ** 2
-    #         print(math.sqrt(a), math.sqrt(b), math.sqrt(c))
-    #         if a + b + c == number:
-    #             print("found a triplet")
-    #             nums.append(int(math.sqrt(a)))
-    #             nums.append(int(math.sqrt(b)))
-    #             nums.append(int(math.sqrt(c)))
-    #             trip.append(nums)
+    def next_mn(mn_pair):
+        m, n = mn_pair
+        a = m ** 2 - n ** 2
+        b = 2 * m * n
+        c = m ** 2 + n ** 2
+        trip_sum = a + b + c
+        if trip_sum == number:
+            trips.append(sorted([a, b, c]))
+        elif trip_sum < number:
 
-    nums_list = [n for n in range(1, number + 1)]
-    print(nums_list)
-    a = nums_list[0]
+            # check for non-primitive Pythagorean triplets
+            # which are multiples of primitive Pythagorean triplets
+            if number % trip_sum == 0:
+                f = number // trip_sum
+                trips.append(sorted([a * f, b * f, c * f]))
 
-    return trip
+            for mn in coprime_pairs_generator(mn_pair):
+                next_mn(mn)
+
+    next_mn([2, 1])
+    return trips
 
 
-# print(triplets_with_sum(12)) # [[3, 4, 5]]
-print(triplets_with_sum(90))  # [[9, 40, 41], [15, 36, 39]]
+def coprime_pairs_generator(mn_pair):
+    def multiplier(matrix):
+        return [row[0] * mn_pair[0] + row[1] * mn_pair[1] for row in matrix]
+
+    A = ((2, -1),
+         (1, 0))
+    B = ((2, 1),
+         (1, 0))
+    C = ((1, 2),
+         (0, 1))
+    yield multiplier(A)
+    yield multiplier(B)
+    yield multiplier(C)
